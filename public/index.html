@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <title>TODO App - powered by Express</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='style.css'>
+    <script type="text/javascript">
+
+        function addTODO(event) {
+            event.preventDefault();
+            var data = new FormData(event.target);
+            var body = [];
+
+            for(var entry of data.entries()) {
+                body.push(entry[0]+"="+entry[1]);
+            };
+            
+            body = body.join('&');
+
+            fetch("/todo", {method: "POST", body: body, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).then(
+                function (r) {
+                    if(!r.ok) return Promise.reject(r.status + " - " + r.statusText);
+                    return r.json();
+                }
+            ).then(function(data) {
+                console.log("Response of add TODO: ", data);
+                getTODOs();
+            }).catch(function(e){
+                console.error("Failed to add TODO: ", e);
+            });
+
+            return false;
+        }
+
+        function getTODOs() {
+            fetch("/todo").then(
+                function (r) {
+                    if(!r.ok) return Promise.reject(r.status + " - " + r.statusText);
+                    return r.json();
+                }
+            ).then(
+                function (data) {
+                    var ul = document.getElementById('todo-list');
+                    var html = "";
+                    var li = '<li id="<ID>"><input type="checkbox" onchange="markTODO(<ID>, event.target.checked);"><TEXT>&nbsp;&nbsp;&nbsp;&nbsp;<span class="delete" onclick="deleteTODO(<ID>)">X</span></li>';
+                    (data || []).forEach(function(item){
+                        html += li.replace(/<ID>/g, item.id).replace(/<TEXT>/g, item.text);
+                    });
+                    ul.innerHTML = html;
+                }
+            ).catch(function(e) {
+                console.error("Failed to get list of TODOs: ", e);
+            });
+        }
+
+        function deleteTODO(id) {
+            fetch("/todo/"+id, {method: "DELETE"}).then(function (r) {
+                if(!r.ok) return Promise.reject(r.status + " - " + r.statusText);
+                document.getElementById(id).remove();
+                return r.json();
+            }).then(d => {
+                console.log("Delete TODO response: ", d);
+            }).catch(function(e) {
+                console.error("Failed to delete TODO: ", e);
+            });
+        }
+
+        function markTODO(id, mark) {
+            let status = mark ? 'completed' : 'pending';
+            fetch("/todo/"+id+"/"+status, {method: "PATCH"}).then(function (r) {
+                if(!r.ok) return Promise.reject(r.status + " - " + r.statusText);
+                document.getElementById(id).className = status;
+                return r.json();
+            }).then(d => {
+                console.log("Mark/unmark TODO response: ", d);
+            }).catch(function(e) {
+                console.error("Failed to mark/unmark TODO: ", e);
+            });
+        }
+
+        getTODOs();
+
+    </script>
+</head>
+
+<body>
+    <h1>My TODOs</h1>
+    <div class="formcontainer">
+        <form id='mainform' onsubmit="return addTODO(event);">
+            <input name="text" placeholder="Create new TODO..." />
+            <input type="submit" value="Add" />
+        </form>
+    </div>
+    <ul id="todo-list">
+
+    </ul>
+</body>
+
+</html>

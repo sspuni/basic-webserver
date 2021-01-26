@@ -1,0 +1,54 @@
+body {
+    color: #000;
+    font-size: 14px;
+    text-align: center;
+}
+
+.formcontainer {
+    display: inline-block;
+}
+
+.formcontainer input {
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.delete {
+    color: #ff0000;
+    cursor: pointer;
+    float: right;
+}
+
+.completed {
+    text-decoration: line-through;
+    font-style: italic;
+}
+
+.pending {
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+    width: 50%;
+    border: 1px solid #afafaf;
+    margin: 10px auto;
+    padding: 10px;
+}
+
+li {
+    list-style: none;
+    text-align: left;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+
+li:nth-child(odd) {
+    background-color: #efefff;
+}
+
+li:nth-child(even) {
+    background-color: #efffef;
+}

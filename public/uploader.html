@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>File Uploader Example</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script type="text/javascript">
+        function uploadFile(event) {
+            event.preventDefault();
+
+            var form = new FormData(event.target);
+            fetch("/upload", {method: "POST", body: form}).then(
+                function (r) {
+                    if(!r.ok) return Promise.reject(r.status + " - " + r.statusText);
+                    return r.json();
+                }
+            ).then(function(data) {
+                console.log("Response of upload file: ", data);
+                document.getElementById('file-info').innerHTML = 'See uploaded file here: <a href="' + data.path + '" target="_blank">' + data.filename + '</a>';
+            }).catch(function(e){
+                console.error("Failed to upload file: ", e);
+            });
+
+            return false;
+        }
+    </script>
+</head>
+<body>
+    <form onsubmit="return uploadFile(event);">
+        <input type="file" name="file"/> <input type="submit" value="Upload"/>
+    </form>
+    <p id="file-info"></p>
+</body>
+</html>
